@@ -2,7 +2,6 @@ import yaml
 from datetime import datetime
 from airflow.decorators import dag, task
 from airflow.operators.empty import EmptyOperator
-from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from resources.scripts.retail import extract_logic, load_logic, update_ingest_type_logic
 
 # Load konfigurasi dari file YAML
@@ -12,7 +11,8 @@ with open("dags/resources/config/retail.yaml", "r") as f:
 
 # Default arguments for the DAG
 default_args = {
-    'retries': 1
+    'retries': 3,
+    'retry_delay': 30
 }
 
 @dag(
@@ -25,7 +25,7 @@ default_args = {
     tags=['assigment']
 )
 
-def extract_load_retail():
+def biweekly_friday_job():
     start_task          = EmptyOperator(task_id="start_task")
     end_task            = EmptyOperator(task_id="end_task")
 
@@ -53,4 +53,4 @@ def extract_load_retail():
 
 
 # Mendefinisikan DAG
-extract_load_retail()
+biweekly_friday_job()
